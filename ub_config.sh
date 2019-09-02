@@ -91,7 +91,7 @@ echo -e "\033[41;33m Prerequisite Software Installed Sucessfully! \033[0m\n\n\n"
 #apt-get install iptables-persistent
 apt-get install ruby -y
 apt-get install nmap -y
-apt-get install postgresql -y
+#apt-get install postgresql -y
 echo -e "\033[41;33m Metasploit Situation Installed Sucessfully! \033[0m\n\n\n"
 
 #Install security software
@@ -106,7 +106,7 @@ apt-get install iptables-persistent -y
 #wget -O https://raw.githubusercontent.com/rapid7/metasploit-omnibus/master/config/templates/metasploit-framework-wrappers/msfupdate.erb > msfinstall
 #chmod 755 msfinstall
 #./msfinstall -y
-curl https://raw.githubusercontent.com/rapid7/metasploit-omnibus/master/config/templates/metasploit-framework-wrappers/msfupdate.erb > msfinstall && chmod 755 msfinstall && ./msfinstall
+#curl https://raw.githubusercontent.com/rapid7/metasploit-omnibus/master/config/templates/metasploit-framework-wrappers/msfupdate.erb > msfinstall && chmod 755 msfinstall && ./msfinstall
 echo -e "\033[41;33m Metasploit Downloaded And Installede Sucessful,Then Need You To Config Something Needed. \033[0m\n\n\n"
 
 #Finally
